@@ -8,26 +8,14 @@ const HomeScreen = ({ onLogout }) => {
   };
 
   return (
-    <View style={styles.homeContainer}>
-      <Text style={styles.welcomeText}>Bem-vindo à Home!</Text>
-      <Button mode="contained" onPress={handleLogout}>
-        Sair
-      </Button>
+    <View>
+      <Text>COLOCAR GRAFICO COM TODOS OS GASTOS/TRANSACAO</Text>
+      <Text>INTEGRAR APIS AQUI NESTA TELA</Text>
+      <Text>API PARA MOSTRAR COTACAO E CONVERSAO DO REAL</Text>
     </View>
-  );
-};
+  )
+}
 
-const styles = StyleSheet.create({
-  homeContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  welcomeText: {
-    fontSize: 24,
-    marginBottom: 24,
-  },
-});
+const styles = StyleSheet.create({})
 
 export default HomeScreen;

@@ -2,28 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import LoginScreen from './src/screens/Auth/LoginScreen';
-import RegisterScreen from './src/screens/Auth/RegisterScreen'; 
-
-const HomeScreen = ({ navigation }) => {
-  const handleLogout = async () => {
-    await AsyncStorage.removeItem('usuario');
-    navigation.replace('Login');
-  };
-
-  return (
-    <View style={styles.homeContainer}>
-      <Button mode="contained" onPress={handleLogout}>
-        Sair
-      </Button>
-    </View>
-  );
-};
-
-import { Button } from 'react-native-paper';
+import RegisterScreen from './src/screens/Auth/RegisterScreen';
+import DrawerRoutes from './src/routes/DrawerRoutes';
 
 const Stack = createNativeStackNavigator();
 
@@ -49,6 +32,11 @@ export default function App() {
     setIsLoggedIn(true);
   };
 
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('usuario');
+    setIsLoggedIn(false);
+  };
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -59,25 +47,19 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isLoggedIn ? (
-          <Stack.Screen
-            name="Home"
-            component={HomeScreen}
-            options={{ headerShown: false }}
-          />
+          <Stack.Screen name="Main">
+            {(props) => <DrawerRoutes {...props} onLogout={handleLogout} />}
+          </Stack.Screen>
         ) : (
           <>
-            <Stack.Screen name="Login" options={{ headerShown: false }}>
+            <Stack.Screen name="Login">
               {(props) => (
                 <LoginScreen {...props} onLoginSuccess={handleLoginSuccess} />
               )}
             </Stack.Screen>
-            <Stack.Screen
-              name="Register"
-              component={RegisterScreen}
-              options={{ title: 'Registrar' }}
-            />
+            <Stack.Screen name="Register" component={RegisterScreen} />
           </>
         )}
       </Stack.Navigator>
@@ -87,5 +69,4 @@ export default function App() {
 
 const styles = StyleSheet.create({
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  homeContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 });
