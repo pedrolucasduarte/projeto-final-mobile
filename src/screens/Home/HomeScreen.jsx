@@ -84,15 +84,6 @@ const HomeScreen = ({ onLogout }) => {
           </Card.Content>
         </Card>
       )}
-
-      <Button
-        mode="contained"
-        onPress={onLogout}
-        style={styles.logoutButton}
-        labelStyle={styles.logoutLabel}
-      >
-        🔓 Logout
-      </Button>
     </ScrollView>
   );
 };

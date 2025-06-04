@@ -1,182 +1,171 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
-import {
-  TextInput,
-  Button,
-  Text,
-  HelperText,
-  Menu,
-  Divider,
-} from 'react-native-paper';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import uuid from 'react-native-uuid';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import moment from 'moment';
+import React, { useState, useEffect } from "react";
+import { StyleSheet, View } from "react-native";
+import { TextInputMask } from "react-native-masked-text";
+import { Button, Text, TextInput } from "react-native-paper";
+import OrcamentoService from "../../services/OrcamentoService";
 
-const categorias = [
-  'Alimentação',
-  'Transporte',
-  'Lazer',
-  'Saúde',
-  'Moradia',
-  'Viagens',
-];
+export default function OrcamentoFormScreen({ orcamentoAntigo = {}, onFechar }) {
+ const [nome, setNome] = useState(orcamentoAntigo?.nome || "");
+const [descricao, setDescricao] = useState(orcamentoAntigo?.descricao || "");
+const [dataInicial, setDataInicial] = useState(orcamentoAntigo?.dataInicial || "");
+const [dataFinal, setDataFinal] = useState(orcamentoAntigo?.dataFinal || "");
+const [valorPlanejado, setValorPlanejado] = useState(orcamentoAntigo?.valorPlanejado?.toString() || "");
 
-const OrcamentoFormScreen = () => {
-  const navigation = useNavigation();
-  const route = useRoute();
-  const editingItem = route.params?.orcamento;
+  useEffect(() => {
+    setNome(orcamentoAntigo.nome || "");
+    setDataInicial(orcamentoAntigo.dataInicial || "");
+    setDataFinal(orcamentoAntigo.dataFinal || "");
+    setValorPlanejado(orcamentoAntigo.valorPlanejado || "");
+    setDescricao(orcamentoAntigo.descricao || "");
+  }, [orcamentoAntigo]);
 
-  const [id, setId] = useState(editingItem ? editingItem.id : uuid.v4());
-  const [nome, setNome] = useState(editingItem?.nome || '');
-  const [valor, setValor] = useState(editingItem?.valor || '');
-  const [categoria, setCategoria] = useState(editingItem?.categoria || '');
-  const [descricao, setDescricao] = useState(editingItem?.descricao || '');
-  const [dataInicio, setDataInicio] = useState(
-    editingItem?.dataInicio || new Date()
-  );
-  const [dataFim, setDataFim] = useState(editingItem?.dataFim || new Date());
-  const [showInicio, setShowInicio] = useState(false);
-  const [showFim, setShowFim] = useState(false);
-  const [categoriaMenuVisible, setCategoriaMenuVisible] = useState(false);
+  async function salvar() {
+    if (!nome || !dataInicial || !dataFinal || !valorPlanejado) {
+      alert("Preencha todos os campos obrigatórios!");
+      return;
+    }
 
-  const salvarOrcamento = async () => {
-    const novoOrcamento = {
-      id,
+    let orcamento = {
       nome,
-      valor,
-      categoria,
-      dataInicio,
-      dataFim,
+      dataInicial,
+      dataFinal,
+      valorPlanejado,
       descricao,
-      status: editingItem ? editingItem.status : 'Ativo',
     };
 
-    try {
-      const data = await AsyncStorage.getItem('orcamentos');
-      const orcamentos = data ? JSON.parse(data) : [];
-      const updated = editingItem
-        ? orcamentos.map((item) => (item.id === id ? novoOrcamento : item))
-        : [...orcamentos, novoOrcamento];
-      await AsyncStorage.setItem('orcamentos', JSON.stringify(updated));
-      navigation.goBack();
-    } catch (err) {
-      console.error('Erro ao salvar orçamento:', err);
+    if (orcamentoAntigo?.id) {
+      orcamento.id = orcamentoAntigo?.id;
+      await OrcamentoService.atualizar(orcamento);
+      alert("Orçamento atualizado com sucesso!");
+    } else {
+      orcamento.id = new Date().getTime();
+      await OrcamentoService.salvar(orcamento);
+      alert("Orçamento cadastrado com sucesso!");
     }
-  };
+
+    onFechar(true);
+  }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={styles.container}
-    >
-      <ScrollView contentContainerStyle={styles.innerContainer}>
-        {editingItem && (
-          <TextInput label="ID" value={id} disabled style={styles.input} />
+    <View style={styles.container}>
+      <Text variant="titleLarge" style={styles.title}>
+        {orcamentoAntigo.id ? `Editando ID: ${orcamentoAntigo.id}` : "Novo Orçamento"}
+      </Text>
+
+      <TextInput
+        style={styles.input}
+        mode="outlined"
+        label="Nome do Orçamento"
+        placeholder="Ex: Orçamento para viagem"
+        value={nome}
+        onChangeText={setNome}
+      />
+
+      <TextInput
+        style={styles.input}
+        mode="outlined"
+        label="Data Inicial"
+        placeholder="DD/MM/AAAA"
+        value={dataInicial}
+        onChangeText={setDataInicial}
+        keyboardType="numeric"
+        render={(props) => (
+          <TextInputMask
+            {...props}
+            type={"datetime"}
+            options={{ format: "DD/MM/YYYY" }}
+          />
         )}
-        <TextInput
-          label="Nome do Orçamento"
-          value={nome}
-          onChangeText={(text) => setNome(text.slice(0, 25))}
-          style={styles.input}
-        />
+      />
 
-        <TextInput
-          label="Valor Total Disponível"
-          value={valor}
-          onChangeText={setValor}
-          style={styles.input}
-          keyboardType="numeric"
-        />
+      <TextInput
+        style={styles.input}
+        mode="outlined"
+        label="Data Final"
+        placeholder="DD/MM/AAAA"
+        value={dataFinal}
+        onChangeText={setDataFinal}
+        keyboardType="numeric"
+        render={(props) => (
+          <TextInputMask
+            {...props}
+            type={"datetime"}
+            options={{ format: "DD/MM/YYYY" }}
+          />
+        )}
+      />
 
-        <Menu
-          visible={categoriaMenuVisible}
-          onDismiss={() => setCategoriaMenuVisible(false)}
-          anchor={
-            <Button
-              onPress={() => setCategoriaMenuVisible(true)}
-              mode="outlined"
-              style={styles.input}
-            >
-              {categoria || 'Selecionar Categoria'}
-            </Button>
-          }
-        >
-          {categorias.map((cat) => (
-            <Menu.Item
-              key={cat}
-              onPress={() => {
-                setCategoria(cat);
-                setCategoriaMenuVisible(false);
-              }}
-              title={cat}
-            />
-          ))}
-        </Menu>
-
-        <Button onPress={() => setShowInicio(true)} mode="outlined">
-          Início: {moment(dataInicio).format('DD/MM/YYYY')}
-        </Button>
-        {showInicio && (
-          <DateTimePicker
-            value={new Date(dataInicio)}
-            mode="date"
-            display="default"
-            onChange={(event, date) => {
-              setShowInicio(false);
-              if (date) setDataInicio(date);
+      <TextInput
+        style={styles.input}
+        mode="outlined"
+        label="Valor Planejado"
+        placeholder="R$ 0,00"
+        value={valorPlanejado}
+        onChangeText={setValorPlanejado}
+        keyboardType="numeric"
+        render={(props) => (
+          <TextInputMask
+            {...props}
+            type={"money"}
+            options={{
+              precision: 2,
+              separator: ",",
+              delimiter: ".",
+              unit: "R$ ",
+              suffixUnit: "",
             }}
           />
         )}
+      />
 
-        <Button onPress={() => setShowFim(true)} mode="outlined">
-          Fim: {moment(dataFim).format('DD/MM/YYYY')}
-        </Button>
-        {showFim && (
-          <DateTimePicker
-            value={new Date(dataFim)}
-            mode="date"
-            display="default"
-            onChange={(event, date) => {
-              setShowFim(false);
-              if (date) setDataFim(date);
-            }}
-          />
-        )}
+      <TextInput
+        style={styles.input}
+        mode="outlined"
+        label="Descrição (Opcional)"
+        placeholder="Detalhes adicionais"
+        value={descricao}
+        onChangeText={setDescricao}
+        multiline
+        numberOfLines={3}
+      />
 
-        <TextInput
-          label="Descrição"
-          value={descricao}
-          onChangeText={(text) => setDescricao(text.slice(0, 300))}
-          style={styles.input}
-          multiline
-        />
+      <Button style={styles.saveButton} mode="contained" onPress={salvar}>
+        Salvar
+      </Button>
 
-        <Button mode="contained" onPress={salvarOrcamento}>
-          Salvar Orçamento
-        </Button>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <Button style={styles.cancelButton} mode="outlined" onPress={() => onFechar(false)}>
+        Cancelar
+      </Button>
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    width: "100%",
+    backgroundColor: "#FAFAFF",
+    padding: 16,
+    borderRadius: 12,
   },
-  innerContainer: {
-    padding: 20,
+  title: {
+    marginBottom: 20,
+    fontWeight: "bold",
+    fontSize: 20,
+    color: "#001858",
+    textAlign: "center",
   },
   input: {
-    marginBottom: 16,
+    marginBottom: 12,
+    backgroundColor: "#F3D2C1",
+  },
+  saveButton: {
+    marginBottom: 12,
+    backgroundColor: "#F582AE",
+    borderRadius: 0,
+  },
+  cancelButton: {
+    borderColor: "#F582AE",
+    borderWidth: 1,
+    borderRadius: 0,
   },
 });
-
-export default OrcamentoFormScreen;

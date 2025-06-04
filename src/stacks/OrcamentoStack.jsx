@@ -1,23 +1,28 @@
-import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 
-import OrcamentoListScreen from "../screens/Orcamento/OrcamentoListScreen";
 import OrcamentoFormScreen from "../screens/Orcamento/OrcamentoFormScreen";
+import OrcamentoListScreen from "../screens/Orcamento/OrcamentoListScreen";
 
 const Stack = createStackNavigator();
 
 export default function OrcamentoStack() {
   return (
-    <Stack.Navigator initialRouteName="OrcamentoList">
+    <Stack.Navigator>
       <Stack.Screen
-        name="OrcamentoList"
+        name="OrcamentoListScreen"
         component={OrcamentoListScreen}
-        options={{ title: "Lista de Orçamentos" }}
+        options={{
+          title: "Lista de Orçamentos",
+          headerTitleAlign: "center",
+        }}
       />
       <Stack.Screen
-        name="OrcamentoForm"
+        name="OrcamentoFormScreen"
         component={OrcamentoFormScreen}
-        options={{ title: "Formulário de Orçamento" }}
+        options={{
+          title: "Formulário de Orçamento",
+          headerTitleAlign: "center",
+        }}
       />
     </Stack.Navigator>
   );

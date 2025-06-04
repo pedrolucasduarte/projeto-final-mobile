@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { TextInputMask } from "react-native-masked-text";
 import { Button, Text, TextInput } from "react-native-paper";
-import TransacaoService from "./TransacaoService";
+import TransacaoService from "../../services/TransacaoService";
 
 export default function TransacaoForm({ transacaoAntiga = {}, onFechar }) {
   const [descricao, setDescricao] = useState(transacaoAntiga.descricao || "");
@@ -15,7 +15,7 @@ export default function TransacaoForm({ transacaoAntiga = {}, onFechar }) {
     setDescricao(transacaoAntiga.descricao || "");
     setValor(transacaoAntiga.valor || "");
     setData(transacaoAntiga.data || "");
-    setTipo(transacaoAntiga.tipo || "despesa");
+    setTipo(transacaoAntiga.tipo || "Despesa");
     setCategoria(transacaoAntiga.categoria || "");
   }, [transacaoAntiga]);
 
@@ -107,7 +107,7 @@ export default function TransacaoForm({ transacaoAntiga = {}, onFechar }) {
         style={styles.input}
         mode="outlined"
         label="Tipo"
-        placeholder="despesa ou receita"
+        placeholder="Despesa ou receita"
         value={tipo}
         onChangeText={setTipo}
       />

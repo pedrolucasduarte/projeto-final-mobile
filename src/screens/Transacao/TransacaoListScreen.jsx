@@ -8,8 +8,9 @@ import {
   Portal,
   Provider,
 } from "react-native-paper";
-import TransacaoService from "./TransacaoService";
-import TransacaoForm from "./TransacaoFormScreen"; // transformar em componente só de formulário, sem navigator
+import TransacaoService from "../../services/TransacaoService";
+import TransacaoForm from "./TransacaoFormScreen";
+import { COLORS } from "../../assets/theme";
 
 export default function TransacaoListScreen() {
   const [transacoes, setTransacoes] = useState([]);
@@ -50,38 +51,52 @@ export default function TransacaoListScreen() {
     <Provider>
       <View style={styles.container}>
         <Button
-          style={styles.addButton}
+          style={styles.saveButton}
           icon="plus"
           mode="contained"
           onPress={abrirModal}
         >
           Cadastrar transação
         </Button>
-
         <FlatList
           data={transacoes}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <Card style={styles.card}>
               <Card.Content>
-                <Text style={styles.text}>ID: {item.id}</Text>
-                <Text style={styles.text}>Descrição: {item.descricao}</Text>
-                <Text style={styles.text}>Valor: {item.valor}</Text>
-                <Text style={styles.text}>Data: {item.data}</Text>
-                <Text style={styles.text}>Tipo: {item.tipo}</Text>
-                <Text style={styles.text}>Categoria: {item.categoria}</Text>
+                <View style={styles.row}>
+                  <View style={styles.columnLeft}>
+                    <Text style={styles.label}>ID: {item.id}</Text>
+                    <Text style={styles.label}>Nome: {item.descricao}</Text>
+                    <Text style={styles.label}>Data: {item.data}</Text>
+                    <Text style={styles.label}>Valor: {item.valor}</Text>
+                    <Text style={styles.label}>Tipo: {item.tipo}</Text>
+                    <Text style={styles.label}>
+                      Categoria: {item.categoria}
+                    </Text>
+                  </View>
+                  <View style={styles.columnRight}>
+                    <Button
+                      style={styles.button}
+                      icon="pencil"
+                      mode="contained"
+                      onPress={() => editarTransacao(item)}
+                    >
+                      Editar
+                    </Button>
+                    <Text />
+                    <Text />
+                    <Button
+                      style={styles.button}
+                      icon="delete"
+                      mode="contained"
+                      onPress={() => removerTransacao(item.id)}
+                    >
+                      Deletar
+                    </Button>
+                  </View>
+                </View>
               </Card.Content>
-              <Card.Actions>
-                <Button
-                  style={styles.saveButton}
-                  icon="pencil"
-                  onPress={() => editarTransacao(item)}
-                />
-                <Button
-                  icon="delete"
-                  onPress={() => removerTransacao(item.id)}
-                />
-              </Card.Actions>
             </Card>
           )}
         />
@@ -106,33 +121,55 @@ export default function TransacaoListScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8f7ff",
-    padding: 10,
-  },
-  addButton: {
-    marginTop: 10,
-    backgroundColor: "#5e60ce",
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    backgroundColor: "#fff",
   },
   card: {
-    margin: 10,
-    backgroundColor: "#ffffff",
+    borderWidth: 1,
     borderRadius: 8,
-    elevation: 3,
+    padding: 4,
+    marginBottom: 20,
+    backgroundColor: "#F3D2C1",
   },
-  text: {
-    color: "#2b2c34",
-    marginBottom: 4,
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 2,
+  },
+  label: {
+    color: COLORS.textPrimary,
+    fontWeight: "bold",
     fontSize: 14,
   },
-  modalContainer: {
-    backgroundColor: "#ffffff",
-    padding: 20,
-    margin: 20,
-    borderRadius: 8,
+  value: {
+    color: COLORS.textSecondary,
+    fontSize: 14,
+    textAlign: "right",
+    flexShrink: 1,
+  },
+  descriptionExtra: {
+    color: COLORS.textSecondary,
+    fontSize: 13,
+    marginTop: 4,
+    textAlign: "right",
   },
   saveButton: {
     marginBottom: 12,
     backgroundColor: "#F582AE",
-    borderRadius: 1,
+    borderRadius: 0,
+  },
+  cancelButton: {
+    borderColor: "#F582AE",
+    borderWidth: 1,
+    borderRadius: 0,
+  },
+  button: {
+    marginLeft: 12,
+    borderRadius: 0,
+    width: 100,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
