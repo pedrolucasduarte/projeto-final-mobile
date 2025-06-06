@@ -49,7 +49,7 @@ Um aplicativo completo de controle financeiro pessoal com design moderno, inspir
 
 ## 📂 Estrutura do Projeto
 
-![Estrutura do Projeto](./docs/estrutura-do-projeto.png)
+![Estrutura do Projeto](./src/assets/icons/estrutura.png)
 
 
 ## 👨‍💻 Desenvolvedor | Pedro Lucas Duarte
