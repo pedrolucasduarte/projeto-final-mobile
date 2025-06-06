@@ -1,8 +1,7 @@
 # 💸 App Finanças Pessoais - React Native
 
-Um aplicativo completo de controle financeiro pessoal com design moderno, inspirado em bancos digitais. Desenvolvido com **React Native** + **React Native Paper**, ele oferece funcionalidades para gerenciar **transações**, **cartões**, **orçamentos**, além de um painel com **saldo mensal** e **cotações de moedas** atualizadas em tempo real.
+Um aplicativo completo de controle financeiro pessoal com design moderno, inspirado em bancos digitais. Desenvolvido com **React Native** + **React Native Paper**, ele oferece funcionalidades para gerenciar **transações**, **cartões**, **orçamentos**, além de um painel com **saldo mensal**, **últimas transações** e **cotações de moedas** atualizadas em tempo real.
 
----
 
 ## ✨ Funcionalidades
 
@@ -15,7 +14,6 @@ Um aplicativo completo de controle financeiro pessoal com design moderno, inspir
 - ✅ Interface responsiva e estilosa usando `react-native-paper`
 - ✅ Logout com limpeza de sessão local
 
----
 
 ## 📱 Tecnologias utilizadas
 
@@ -27,13 +25,12 @@ Um aplicativo completo de controle financeiro pessoal com design moderno, inspir
 - [Axios](https://axios-http.com/)
 - [AwesomeAPI - Cotação de Moedas](https://docs.awesomeapi.com.br/api-de-moedas)
 
----
 
 ## 🚀 Como executar o projeto
 
 1. **Clone o repositório**
    ```bash
-   git clone https://github.com/pedrolucasduarte/projeto-final-mobile
+   git clone https://github.com/seu-usuario/seu-repo.git
    cd seu-repo
 
 2. **Instale as dependências**
@@ -49,14 +46,10 @@ Um aplicativo completo de controle financeiro pessoal com design moderno, inspir
 - Use o app Expo Go (disponível na Play Store/App Store)
 - Escaneie o QR Code exibido no terminal ou browser
 
----
 
 ## 📂 Estrutura do Projeto
 
-![Estrutura do Projeto](./src/assets/icons/estrutura.png)
+![Estrutura do Projeto](./docs/estrutura-do-projeto.png)
 
----
 
 ## 👨‍💻 Desenvolvedor | Pedro Lucas Duarte
-
----
