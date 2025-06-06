@@ -1,19 +1,62 @@
-# INOVAÇÕES QUE PRETENDO COLOCAR
+# 💸 App Finanças Pessoais - React Native
 
-## Autenticação - Auth0
+Um aplicativo completo de controle financeiro pessoal com design moderno, inspirado em bancos digitais. Desenvolvido com **React Native** + **React Native Paper**, ele oferece funcionalidades para gerenciar **transações**, **cartões**, **orçamentos**, além de um painel com **saldo mensal** e **cotações de moedas** atualizadas em tempo real.
 
-## Dashboards & Gráficos - React Native Charts Wrapper https://github.com/wuxudong/react-native-charts-wrapper
+---
 
-## Notificações Push - Expo Notifications
+## ✨ Funcionalidades
 
-## API Externa - AwesomeAPI de Moedas para mostrar cotações de moedas https://docs.awesomeapi.com.br/api-de-moedas
+- ✅ Tela de login e cadastro com persistência via `AsyncStorage`
+- ✅ Navegação por abas (Bottom Tabs)
+- ✅ Cotações de moedas atualizadas via [AwesomeAPI](https://docs.awesomeapi.com.br/)
+- ✅ Visualização e CRUD de transações
+- ✅ Visualização e cadastro de cartões (crédito/débito)
+- ✅ Gestão de orçamentos por categoria
+- ✅ Interface responsiva e estilosa usando `react-native-paper`
+- ✅ Logout com limpeza de sessão local
 
-## Armazenamento em Nuvem - Firebase Storage
+---
 
-## Formulários - Yup
+## 📱 Tecnologias utilizadas
 
-## tela de login com opção de registrar / mudar senha
+- [React Native](https://reactnative.dev/)
+- [Expo](https://expo.dev/)
+- [React Navigation](https://reactnavigation.org/)
+- [React Native Paper](https://callstack.github.io/react-native-paper/)
+- [AsyncStorage](https://react-native-async-storage.github.io/async-storage/)
+- [Axios](https://axios-http.com/)
+- [AwesomeAPI - Cotação de Moedas](https://docs.awesomeapi.com.br/api-de-moedas)
 
-## O usuário pode colocar um valor padrão previsto para gastar no mês
+---
 
-## Integração com whatsapp exemplo, digitar "Restaurante + 24,66" em uma conversa com o app e já mostra lá na tela / graficos o gasto.
+## 🚀 Como executar o projeto
+
+1. **Clone o repositório**
+   ```bash
+   git clone https://github.com/pedrolucasduarte/projeto-final-mobile
+   cd seu-repo
+
+2. **Instale as dependências**
+    ```
+    npm install
+
+3. **Inicie o app com Expo**
+    ```
+    npx expo start
+
+4. **Abra no seu celular**
+
+- Use o app Expo Go (disponível na Play Store/App Store)
+- Escaneie o QR Code exibido no terminal ou browser
+
+---
+
+## 📂 Estrutura do Projeto
+
+![Estrutura do Projeto](./src/assets/icons/estrutura.png)
+
+---
+
+## 👨‍💻 Desenvolvedor | Pedro Lucas Duarte
+
+---
