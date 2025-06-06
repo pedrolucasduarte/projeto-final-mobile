@@ -10,7 +10,7 @@ import {
 } from "react-native-paper";
 import TransacaoService from "../../services/TransacaoService";
 import TransacaoForm from "./TransacaoFormScreen";
-import { COLORS } from "../../assets/theme";
+import { COLORS } from "../../theme/theme";
 
 export default function TransacaoListScreen() {
   const [transacoes, setTransacoes] = useState([]);
@@ -23,6 +23,7 @@ export default function TransacaoListScreen() {
 
   async function buscarTransacoes() {
     const lista = await TransacaoService.listar();
+    console.log("Transações:", lista);
     setTransacoes(lista);
   }
 
@@ -47,6 +48,14 @@ export default function TransacaoListScreen() {
     if (atualizou) buscarTransacoes();
   }
 
+  function formatarValor(valor) {
+    if (!valor) return "0.00";
+    const numero = parseFloat(
+      valor.replace("R$", "").replace(/\s/g, "").replace(",", ".")
+    );
+    return isNaN(numero) ? "0.00" : numero.toFixed(2);
+  }
+
   return (
     <Provider>
       <View style={styles.container}>
@@ -64,39 +73,47 @@ export default function TransacaoListScreen() {
           renderItem={({ item }) => (
             <Card style={styles.card}>
               <Card.Content>
-                <View style={styles.row}>
-                  <View style={styles.columnLeft}>
-                    <Text style={styles.label}>ID: {item.id}</Text>
-                    <Text style={styles.label}>Nome: {item.descricao}</Text>
-                    <Text style={styles.label}>Data: {item.data}</Text>
-                    <Text style={styles.label}>Valor: {item.valor}</Text>
-                    <Text style={styles.label}>Tipo: {item.tipo}</Text>
-                    <Text style={styles.label}>
+                <View style={styles.cardContent}>
+                  <View style={styles.infoSection}>
+                    <Text style={styles.labelStrong}>
+                      Nome: {item.descricao}
+                    </Text>
+                    <Text style={styles.labelValue}>
+                      Valor: R$ {formatarValor(item.valor)}
+                    </Text>
+                    <Text style={styles.labelMuted}>Data: {item.data}</Text>
+                    <Text style={styles.labelMuted}>Tipo: {item.tipo}</Text>
+                    <Text style={styles.labelMuted}>
                       Categoria: {item.categoria}
                     </Text>
+                    <Text />
                   </View>
-                  <View style={styles.columnRight}>
-                    <Button
-                      style={styles.button}
-                      icon="pencil"
-                      mode="contained"
-                      onPress={() => editarTransacao(item)}
-                    >
-                      Editar
-                    </Button>
-                    <Text />
-                    <Text />
-                    <Button
-                      style={styles.button}
-                      icon="delete"
-                      mode="contained"
-                      onPress={() => removerTransacao(item.id)}
-                    >
-                      Deletar
-                    </Button>
+                  <View style={styles.iconSection}>
+                    <Text style={styles.emoji}>🛒</Text>
                   </View>
                 </View>
               </Card.Content>
+
+              <View style={styles.cardFooter}>
+                <Button
+                  icon="pencil"
+                  mode="contained"
+                  onPress={() => editarTransacao(item)}
+                  style={styles.footerButtonLeft}
+                  labelStyle={{ color: "#fff" }}
+                >
+                  Editar
+                </Button>
+                <Button
+                  icon="delete"
+                  mode="contained"
+                  onPress={() => removerTransacao(item.id)}
+                  style={styles.footerButtonRight}
+                  labelStyle={{ color: "#fff" }}
+                >
+                  Deletar
+                </Button>
+              </View>
             </Card>
           )}
         />
@@ -121,55 +138,76 @@ export default function TransacaoListScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    backgroundColor: "#fff",
-  },
-  card: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 4,
-    marginBottom: 20,
-    backgroundColor: "#F3D2C1",
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginVertical: 2,
-  },
-  label: {
-    color: COLORS.textPrimary,
-    fontWeight: "bold",
-    fontSize: 14,
-  },
-  value: {
-    color: COLORS.textSecondary,
-    fontSize: 14,
-    textAlign: "right",
-    flexShrink: 1,
-  },
-  descriptionExtra: {
-    color: COLORS.textSecondary,
-    fontSize: 13,
-    marginTop: 4,
-    textAlign: "right",
+    backgroundColor: COLORS.background,
+    padding: 16,
   },
   saveButton: {
-    marginBottom: 12,
-    backgroundColor: "#F582AE",
-    borderRadius: 0,
+    backgroundColor: COLORS.primary,
+    borderRadius: 12,
+    marginBottom: 16,
+    paddingVertical: 6,
   },
-  cancelButton: {
-    borderColor: "#F582AE",
-    borderWidth: 1,
-    borderRadius: 0,
+  card: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
+    marginBottom: 16,
+    padding: 16,
+    shadowColor: COLORS.primary,
+    elevation: 3,
   },
-  button: {
-    marginLeft: 12,
-    borderRadius: 0,
-    width: 100,
-    height: 40,
+  cardContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  infoSection: {
+    flex: 1,
+  },
+  iconSection: {
     justifyContent: "center",
     alignItems: "center",
+    paddingLeft: 8,
+  },
+  emoji: {
+    fontSize: 36,
+  },
+  labelStrong: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: COLORS.text,
+  },
+  labelValue: {
+    fontSize: 15,
+    color: COLORS.primary,
+    fontWeight: "600",
+    marginTop: 2,
+  },
+  labelMuted: {
+    fontSize: 14,
+    color: COLORS.muted,
+    marginTop: 2,
+  },
+  cardFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 12,
+  },
+  footerButtonLeft: {
+    flex: 1,
+    backgroundColor: COLORS.primary,
+    marginRight: 6,
+    borderRadius: 8,
+  },
+  footerButtonRight: {
+    flex: 1,
+    backgroundColor: COLORS.primaryDark,
+    marginLeft: 6,
+    borderRadius: 8,
+  },
+  modalContainer: {
+    backgroundColor: COLORS.surface,
+    padding: 20,
+    marginHorizontal: 20,
+    borderRadius: 16,
   },
 });

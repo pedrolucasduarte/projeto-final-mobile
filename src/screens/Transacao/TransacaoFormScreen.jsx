@@ -1,21 +1,51 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { TextInputMask } from "react-native-masked-text";
-import { Button, Text, TextInput } from "react-native-paper";
+import {
+  Button,
+  Text,
+  TextInput,
+  SegmentedButtons,
+  Menu,
+} from "react-native-paper";
 import TransacaoService from "../../services/TransacaoService";
+import { COLORS } from "../../theme/theme";
+import { Picker } from "@react-native-picker/picker";
+
+const CATEGORIAS = [
+  { label: "Mercado", value: "Mercado" },
+  { label: "Shopping", value: "Shopping" },
+  { label: "Médico", value: "Médico" },
+  { label: "Mecânico", value: "Mecânico" },
+  { label: "Transporte", value: "Transporte" },
+  { label: "Educação", value: "Educação" },
+  { label: "Lazer", value: "Lazer" },
+  { label: "Restaurante", value: "Restaurante" },
+  { label: "Farmácia", value: "Farmácia" },
+  { label: "Pets", value: "Pets" },
+  { label: "Casa", value: "Casa" },
+  { label: "Eletrônicos", value: "Eletrônicos" },
+  { label: "Vestuário", value: "Vestuário" },
+  { label: "Viagem", value: "Viagem" },
+  { label: "Serviços", value: "Serviços" },
+  { label: "Beleza", value: "Beleza" },
+  { label: "Doações", value: "Doações" },
+  { label: "Investimentos", value: "Investimentos" },
+  { label: "Outros", value: "Outros" }
+];
 
 export default function TransacaoForm({ transacaoAntiga = {}, onFechar }) {
-  const [descricao, setDescricao] = useState(transacaoAntiga.descricao || "");
-  const [valor, setValor] = useState(transacaoAntiga.valor || "");
-  const [data, setData] = useState(transacaoAntiga.data || "");
-  const [tipo, setTipo] = useState(transacaoAntiga.tipo || "despesa");
-  const [categoria, setCategoria] = useState(transacaoAntiga.categoria || "");
+  const [descricao, setDescricao] = useState("");
+  const [valor, setValor] = useState("");
+  const [data, setData] = useState("");
+  const [tipo, setTipo] = useState("despesa");
+  const [categoria, setCategoria] = useState("");
 
   useEffect(() => {
     setDescricao(transacaoAntiga.descricao || "");
     setValor(transacaoAntiga.valor || "");
     setData(transacaoAntiga.data || "");
-    setTipo(transacaoAntiga.tipo || "Despesa");
+    setTipo(transacaoAntiga.tipo || "despesa");
     setCategoria(transacaoAntiga.categoria || "");
   }, [transacaoAntiga]);
 
@@ -25,7 +55,8 @@ export default function TransacaoForm({ transacaoAntiga = {}, onFechar }) {
       return;
     }
 
-    let transacao = {
+    const transacao = {
+      id: transacaoAntiga.id || new Date().getTime(),
       descricao,
       valor,
       data,
@@ -34,11 +65,9 @@ export default function TransacaoForm({ transacaoAntiga = {}, onFechar }) {
     };
 
     if (transacaoAntiga.id) {
-      transacao.id = transacaoAntiga.id;
       await TransacaoService.atualizar(transacao);
       alert("Transação alterada com sucesso!");
     } else {
-      transacao.id = new Date().getTime();
       await TransacaoService.salvar(transacao);
       alert("Transação cadastrada com sucesso!");
     }
@@ -58,7 +87,6 @@ export default function TransacaoForm({ transacaoAntiga = {}, onFechar }) {
         style={styles.input}
         mode="outlined"
         label="Descrição"
-        placeholder="Descrição da transação"
         value={descricao}
         onChangeText={setDescricao}
       />
@@ -67,7 +95,6 @@ export default function TransacaoForm({ transacaoAntiga = {}, onFechar }) {
         style={styles.input}
         mode="outlined"
         label="Valor"
-        placeholder="Informe o valor"
         value={valor}
         onChangeText={setValor}
         keyboardType="numeric"
@@ -90,7 +117,6 @@ export default function TransacaoForm({ transacaoAntiga = {}, onFechar }) {
         style={styles.input}
         mode="outlined"
         label="Data"
-        placeholder="DD/MM/AAAA"
         value={data}
         onChangeText={setData}
         keyboardType="numeric"
@@ -103,65 +129,109 @@ export default function TransacaoForm({ transacaoAntiga = {}, onFechar }) {
         )}
       />
 
-      <TextInput
-        style={styles.input}
-        mode="outlined"
-        label="Tipo"
-        placeholder="Despesa ou receita"
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={categoria}
+          onValueChange={(itemValue) => setCategoria(itemValue)}
+          style={styles.picker}
+        >
+          <Picker.Item label="Categoria" value="" />
+          {CATEGORIAS.map((cat) => (
+            <Picker.Item key={cat.value} label={cat.label} value={cat.value} />
+          ))}
+        </Picker>
+      </View>
+
+      <SegmentedButtons
         value={tipo}
-        onChangeText={setTipo}
+        onValueChange={setTipo}
+        style={styles.segment}
+        buttons={[
+          { value: "Despesa", label: "Despesa" },
+          { value: "Receita", label: "Receita" },
+        ]}
+        theme={{
+          colors: {
+            secondaryContainer: COLORS.primaryLight,
+            onSecondaryContainer: COLORS.primary,
+            outline: COLORS.primary,
+          },
+        }}
       />
 
-      <TextInput
-        style={styles.input}
-        mode="outlined"
-        label="Categoria"
-        placeholder="Categoria"
-        value={categoria}
-        onChangeText={setCategoria}
-      />
-
-      <Button style={styles.saveButton} mode="contained" onPress={salvar}>
-        Salvar
-      </Button>
-
-      <Button
-        style={styles.cancelButton}
-        mode="outlined"
-        onPress={() => onFechar(false)}
-      >
-        Cancelar
-      </Button>
+      <View style={styles.buttonContainer}>
+        <Button
+          style={styles.footerButtonLeft}
+          mode="contained"
+          onPress={salvar}
+          labelStyle={{ color: "#fff" }}
+        >
+          Salvar
+        </Button>
+        <Button
+          style={styles.footerButtonRight}
+          mode="contained"
+          onPress={() => onFechar(false)}
+          labelStyle={{ color: "#fff" }}
+        >
+          Cancelar
+        </Button>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
-    backgroundColor: "#FAFAFF",
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: COLORS.surface,
+    padding: 20,
+    borderRadius: 16,
   },
   title: {
-    marginBottom: 20,
-    fontWeight: "bold",
     fontSize: 20,
-    color: "#001858",
+    fontWeight: "bold",
+    color: COLORS.text,
     textAlign: "center",
+    marginBottom: 16,
   },
   input: {
+    backgroundColor: COLORS.primaryLight,
     marginBottom: 12,
-    backgroundColor: "#F3D2C1",
+    borderRadius: 10,
   },
-  saveButton: {
+  segment: {
     marginBottom: 12,
-    backgroundColor: "#F582AE",
-    borderRadius: 0,
   },
-  cancelButton: {
-    borderColor: "#F582AE",
+  buttonContainer: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 16,
+  },
+  footerButtonLeft: {
+    flex: 1,
+    backgroundColor: COLORS.primary,
+    borderRadius: 10,
+  },
+  footerButtonRight: {
+    flex: 1,
+    backgroundColor: COLORS.primaryDark,
+    borderRadius: 10,
+  },
+  label: {
+    marginBottom: 4,
+    fontWeight: "bold",
+    color: COLORS.text,
+  },
+  pickerContainer: {
     borderWidth: 1,
-    borderRadius: 0,
+    borderColor: COLORS.primary,
+    borderRadius: 10,
+    backgroundColor: COLORS.primaryLight,
+    marginBottom: 12,
+    overflow: "hidden",
+  },
+  picker: {
+    height: 52,
+    width: "100%",
   },
 });

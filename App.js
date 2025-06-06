@@ -6,14 +6,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // import LoginScreen from "./src/screens/Auth/LoginScreen";
 // import RegisterScreen from "./src/screens/Auth/RegisterScreen";
-import DrawerRoutes from "./src/routes/DrawerRoutes";
+import BottomTabRoutes from "./src/routes/BottomTabRoutes";
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <DrawerRoutes />
+      <BottomTabRoutes />
     </NavigationContainer>
   );
 }
