@@ -1,19 +1,32 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet } from "react-native";
+import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import BottomTabRoutes from "./src/routes/BottomTabRoutes";
-
-const Stack = createNativeStackNavigator();
+import AuthRoutes from "./src/routes/AuthRoutes";
+import { AuthProvider, AuthContext } from "./src/contexts/AuthContext";
+import { ActivityIndicator, View } from "react-native";
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <BottomTabRoutes />
-    </NavigationContainer>
+    <AuthProvider>
+      <AuthContext.Consumer>
+        {({ usuario, carregando }) =>
+          carregando ? (
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <ActivityIndicator size="large" color="#007AFF" />
+            </View>
+          ) : (
+            <NavigationContainer>
+              {usuario ? <BottomTabRoutes /> : <AuthRoutes />}
+            </NavigationContainer>
+          )
+        }
+      </AuthContext.Consumer>
+    </AuthProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
-});

@@ -1,125 +1,94 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { TextInput, Button, Text, ActivityIndicator } from 'react-native-paper';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState, useContext } from "react";
+import { View, StyleSheet } from "react-native";
+import { TextInput, Button, Text } from "react-native-paper";
+import { COLORS } from "../../theme/theme";
+import { AuthContext } from "../../contexts/AuthContext";
 
-const LoginScreen = ({ navigation, onLoginSuccess }) => {
-  const [loading, setLoading] = useState(false);
-  const [loginError, setLoginError] = useState('');
+export default function LoginScreen({ navigation }) {
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const { login } = useContext(AuthContext);
 
-  const loginSchema = Yup.object().shape({
-    email: Yup.string().email('E-mail inválido').required('Informe seu e-mail'),
-    senha: Yup.string().min(6, 'Mínimo 6 caracteres').required('Informe sua senha'),
-  });
-
-  const handleLogin = async (values) => {
-    setLoading(true);
-    setLoginError('');
+  const handleLogin = async () => {
     try {
-      const userData = await AsyncStorage.getItem('usuario');
-      if (!userData) {
-        setLoginError('Usuário não encontrado. Faça o cadastro.');
+      if (!email || !senha) {
+        alert("Preencha todos os campos!");
         return;
       }
 
-      const usuarioSalvo = JSON.parse(userData);
-
-      if (
-        values.email === usuarioSalvo.email &&
-        values.senha === usuarioSalvo.senha
-      ) {
-        onLoginSuccess(); // navega para Home
-      } else {
-        setLoginError('E-mail ou senha incorretos.');
-      }
+      await login(email, senha);
     } catch (error) {
-      console.error('Erro ao fazer login:', error);
-      setLoginError('Erro interno. Tente novamente.');
+      alert(error.message);
     }
-    setLoading(false);
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Entrar</Text>
 
-      <Formik
-        initialValues={{ email: '', senha: '' }}
-        validationSchema={loginSchema}
-        onSubmit={handleLogin}
+      <TextInput
+        label="Email"
+        value={email}
+        onChangeText={setEmail}
+        style={styles.input}
+        mode="outlined"
+        keyboardType="email-address"
+        outlineColor={COLORS.primary}
+        activeOutlineColor={COLORS.primary}
+      />
+
+      <TextInput
+        label="Senha"
+        value={senha}
+        onChangeText={setSenha}
+        secureTextEntry
+        style={styles.input}
+        mode="outlined"
+        outlineColor={COLORS.primary}
+        activeOutlineColor={COLORS.primary}
+      />
+
+      <Button mode="contained" onPress={handleLogin} style={styles.button}>
+        Entrar
+      </Button>
+
+      <Button
+        onPress={() => navigation.navigate("RegisterScreen")}
+        style={styles.link}
+        labelStyle={{ color: COLORS.primary }}
       >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-          <>
-            <TextInput
-              label="E-mail"
-              value={values.email}
-              onChangeText={handleChange('email')}
-              onBlur={handleBlur('email')}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              style={styles.input}
-              error={touched.email && errors.email}
-            />
-            {touched.email && errors.email && (
-              <Text style={styles.error}>{errors.email}</Text>
-            )}
-
-            <TextInput
-              label="Senha"
-              value={values.senha}
-              onChangeText={handleChange('senha')}
-              onBlur={handleBlur('senha')}
-              secureTextEntry
-              style={styles.input}
-              error={touched.senha && errors.senha}
-            />
-            {touched.senha && errors.senha && (
-              <Text style={styles.error}>{errors.senha}</Text>
-            )}
-
-            {loginError ? <Text style={styles.error}>{loginError}</Text> : null}
-
-            {loading ? (
-              <ActivityIndicator animating={true} />
-            ) : (
-              <Button mode="contained" onPress={handleSubmit} style={styles.button}>
-                Entrar
-              </Button>
-            )}
-
-            <Button onPress={() => navigation.navigate('Register')}>
-              Não tem conta? Cadastre-se
-            </Button>
-          </>
-        )}
-      </Formik>
+        Não tem conta? Criar agora
+      </Button>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "center",
     padding: 24,
-    justifyContent: 'center',
+    backgroundColor: COLORS.background,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
+    fontWeight: "bold",
+    color: COLORS.primary,
+    textAlign: "center",
     marginBottom: 24,
-    textAlign: 'center',
   },
   input: {
-    marginBottom: 12,
+    marginBottom: 16,
+    backgroundColor: COLORS.primaryLight,
+    borderRadius: 10,
   },
   button: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 10,
+    paddingVertical: 6,
+    marginTop: 8,
+  },
+  link: {
     marginTop: 12,
   },
-  error: {
-    color: '#b00020',
-    marginBottom: 8,
-  },
 });
-
-export default LoginScreen;
