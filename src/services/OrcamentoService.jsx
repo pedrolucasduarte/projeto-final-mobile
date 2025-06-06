@@ -8,8 +8,8 @@ async function listar() {
 }
 
 async function salvar(orcamento) {
-  orcamento.id = new Date().getTime();
   const orcamentos = await listar();
+  orcamento.id = new Date().getTime();
   orcamentos.push(orcamento);
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(orcamentos));
 }
@@ -19,17 +19,17 @@ async function buscar(id) {
   return orcamentos.find((o) => o.id === id);
 }
 
-async function remover(id) {
-  const orcamentos = await listar();
-  const novaLista = orcamentos.filter((o) => o.id !== id);
-  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(novaLista));
-}
-
 async function atualizar(novoOrcamento) {
   const orcamentos = await listar();
   const novaLista = orcamentos.map((o) =>
     o.id === novoOrcamento.id ? novoOrcamento : o
   );
+  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(novaLista));
+}
+
+async function remover(id) {
+  const orcamentos = await listar();
+  const novaLista = orcamentos.filter((o) => o.id !== id);
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(novaLista));
 }
 

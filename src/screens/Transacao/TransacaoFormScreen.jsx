@@ -135,7 +135,7 @@ export default function TransacaoForm({ transacaoAntiga = {}, onFechar }) {
           onValueChange={(itemValue) => setCategoria(itemValue)}
           style={styles.picker}
         >
-          <Picker.Item label="Categoria" value="" />
+          <Picker.Item label="Categoria" value="" enabled={false}/>
           {CATEGORIAS.map((cat) => (
             <Picker.Item key={cat.value} label={cat.label} value={cat.value} />
           ))}

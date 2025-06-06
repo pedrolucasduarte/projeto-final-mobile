@@ -1,7 +1,7 @@
 import { createStackNavigator } from "@react-navigation/stack";
 
-import OrcamentoFormScreen from "../screens/Orcamento/OrcamentoFormScreen";
 import OrcamentoListScreen from "../screens/Orcamento/OrcamentoListScreen";
+import OrcamentoFormScreen from "../screens/Orcamento/OrcamentoFormScreen";
 
 const Stack = createStackNavigator();
 

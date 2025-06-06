@@ -23,7 +23,6 @@ export default function TransacaoListScreen() {
 
   async function buscarTransacoes() {
     const lista = await TransacaoService.listar();
-    console.log("Transações:", lista);
     setTransacoes(lista);
   }
 

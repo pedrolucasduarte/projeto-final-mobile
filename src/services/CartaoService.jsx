@@ -8,7 +8,6 @@ async function listar() {
 }
 
 async function salvar(cartao) {
-  cartao.id = new Date().getTime();
   const cartoes = await listar();
   cartoes.push(cartao);
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(cartoes));
@@ -19,18 +18,18 @@ async function buscar(id) {
   return cartoes.find((c) => c.id === id);
 }
 
-async function remover(id) {
+async function atualizar(cartaoAtualizado) {
   const cartoes = await listar();
-  const novaLista = cartoes.filter((c) => c.id !== id);
-  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(novaLista));
+  const novosCartoes = cartoes.map((c) =>
+    c.id === cartaoAtualizado.id ? cartaoAtualizado : c
+  );
+  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(novosCartoes));
 }
 
-async function atualizar(novoCartao) {
+async function remover(id) {
   const cartoes = await listar();
-  const novaLista = cartoes.map((c) =>
-    c.id === novoCartao.id ? novoCartao : c
-  );
-  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(novaLista));
+  const novosCartoes = cartoes.filter((c) => c.id !== id);
+  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(novosCartoes));
 }
 
 export default {

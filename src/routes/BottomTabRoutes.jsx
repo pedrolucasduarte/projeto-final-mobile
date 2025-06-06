@@ -34,8 +34,8 @@ export default function BottomTabRoutes() {
         iconName = "home-outline";
       } else if (route.name === "Transações") {
         iconName = "swap-horizontal-outline";
-      // } else if (route.name === "Cartões") {
-      //   iconName = "card-outline";
+      } else if (route.name === "Cartões") {
+        iconName = "card-outline";
       } else if (route.name === "Orçamentos") {
         iconName = "cash-outline";
       }
@@ -57,7 +57,7 @@ export default function BottomTabRoutes() {
 
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Transações" component={TransacaoListScreen} />
-      {/* <Tab.Screen name="Cartões" component={CartaoListScreen} /> */}
+      <Tab.Screen name="Cartões" component={CartaoListScreen} />
       <Tab.Screen name="Orçamentos" component={OrcamentoListScreen} />
     </Tab.Navigator>
   );

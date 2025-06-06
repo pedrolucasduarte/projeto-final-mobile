@@ -2,43 +2,72 @@ import React, { useState, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { TextInputMask } from "react-native-masked-text";
 import { Button, Text, TextInput } from "react-native-paper";
+import { Picker } from "@react-native-picker/picker";
+import { COLORS } from "../../theme/theme";
 import OrcamentoService from "../../services/OrcamentoService";
 
-export default function OrcamentoFormScreen({ orcamentoAntigo = {}, onFechar }) {
- const [nome, setNome] = useState(orcamentoAntigo?.nome || "");
-const [descricao, setDescricao] = useState(orcamentoAntigo?.descricao || "");
-const [dataInicial, setDataInicial] = useState(orcamentoAntigo?.dataInicial || "");
-const [dataFinal, setDataFinal] = useState(orcamentoAntigo?.dataFinal || "");
-const [valorPlanejado, setValorPlanejado] = useState(orcamentoAntigo?.valorPlanejado?.toString() || "");
+const CATEGORIAS = [
+  { label: "Mercado", value: "Mercado" },
+  { label: "Shopping", value: "Shopping" },
+  { label: "Médico", value: "Médico" },
+  { label: "Mecânico", value: "Mecânico" },
+];
+
+const TIPOS = [
+  { label: "Pessoal", value: "Pessoal" },
+  { label: "Familiar", value: "Familiar" },
+  { label: "Compartilhado", value: "Compartilhado" },
+  { label: "Empresarial", value: "Empresarial" },
+];
+
+export default function OrcamentoForm({ orcamentoAntigo = {}, onFechar }) {
+  const [nome, setNome] = useState("");
+  const [valorLimite, setValorLimite] = useState("");
+  const [categoria, setCategoria] = useState("");
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
+  const [tipo, setTipo] = useState("");
+  const [descricao, setDescricao] = useState("");
 
   useEffect(() => {
     setNome(orcamentoAntigo.nome || "");
-    setDataInicial(orcamentoAntigo.dataInicial || "");
-    setDataFinal(orcamentoAntigo.dataFinal || "");
-    setValorPlanejado(orcamentoAntigo.valorPlanejado || "");
+    setValorLimite(orcamentoAntigo.valorLimite || "");
+    setCategoria(orcamentoAntigo.categoria || "");
+    setDataInicio(orcamentoAntigo.dataInicio || "");
+    setDataFim(orcamentoAntigo.dataFim || "");
+    setTipo(orcamentoAntigo.tipo || "");
     setDescricao(orcamentoAntigo.descricao || "");
   }, [orcamentoAntigo]);
 
   async function salvar() {
-    if (!nome || !dataInicial || !dataFinal || !valorPlanejado) {
-      alert("Preencha todos os campos obrigatórios!");
+    if (
+      !nome ||
+      !valorLimite ||
+      !categoria ||
+      !dataInicio ||
+      !dataFim ||
+      !tipo ||
+      !descricao
+    ) {
+      alert("Preencha todos os campos!");
       return;
     }
 
-    let orcamento = {
+    const orcamento = {
+      id: orcamentoAntigo.id || new Date().getTime(),
       nome,
-      dataInicial,
-      dataFinal,
-      valorPlanejado,
+      valorLimite,
+      categoria,
+      dataInicio,
+      dataFim,
+      tipo,
       descricao,
     };
 
-    if (orcamentoAntigo?.id) {
-      orcamento.id = orcamentoAntigo?.id;
+    if (orcamentoAntigo.id) {
       await OrcamentoService.atualizar(orcamento);
       alert("Orçamento atualizado com sucesso!");
     } else {
-      orcamento.id = new Date().getTime();
       await OrcamentoService.salvar(orcamento);
       alert("Orçamento cadastrado com sucesso!");
     }
@@ -48,15 +77,16 @@ const [valorPlanejado, setValorPlanejado] = useState(orcamentoAntigo?.valorPlane
 
   return (
     <View style={styles.container}>
-      <Text variant="titleLarge" style={styles.title}>
-        {orcamentoAntigo.id ? `Editando ID: ${orcamentoAntigo.id}` : "Novo Orçamento"}
+      <Text style={styles.title}>
+        {orcamentoAntigo.id
+          ? `Editando ID: ${orcamentoAntigo.id}`
+          : "Novo Orçamento"}
       </Text>
 
       <TextInput
         style={styles.input}
         mode="outlined"
-        label="Nome do Orçamento"
-        placeholder="Ex: Orçamento para viagem"
+        label="Nome do orçamento"
         value={nome}
         onChangeText={setNome}
       />
@@ -64,44 +94,9 @@ const [valorPlanejado, setValorPlanejado] = useState(orcamentoAntigo?.valorPlane
       <TextInput
         style={styles.input}
         mode="outlined"
-        label="Data Inicial"
-        placeholder="DD/MM/AAAA"
-        value={dataInicial}
-        onChangeText={setDataInicial}
-        keyboardType="numeric"
-        render={(props) => (
-          <TextInputMask
-            {...props}
-            type={"datetime"}
-            options={{ format: "DD/MM/YYYY" }}
-          />
-        )}
-      />
-
-      <TextInput
-        style={styles.input}
-        mode="outlined"
-        label="Data Final"
-        placeholder="DD/MM/AAAA"
-        value={dataFinal}
-        onChangeText={setDataFinal}
-        keyboardType="numeric"
-        render={(props) => (
-          <TextInputMask
-            {...props}
-            type={"datetime"}
-            options={{ format: "DD/MM/YYYY" }}
-          />
-        )}
-      />
-
-      <TextInput
-        style={styles.input}
-        mode="outlined"
-        label="Valor Planejado"
-        placeholder="R$ 0,00"
-        value={valorPlanejado}
-        onChangeText={setValorPlanejado}
+        label="Valor limite"
+        value={valorLimite}
+        onChangeText={setValorLimite}
         keyboardType="numeric"
         render={(props) => (
           <TextInputMask
@@ -118,54 +113,156 @@ const [valorPlanejado, setValorPlanejado] = useState(orcamentoAntigo?.valorPlane
         )}
       />
 
+      <View style={styles.dateRow}>
+        <View style={styles.dateColumn}>
+          <TextInput
+            style={styles.input}
+            mode="outlined"
+            label="Data Início"
+            value={dataInicio}
+            onChangeText={setDataInicio}
+            keyboardType="numeric"
+            render={(props) => (
+              <TextInputMask
+                {...props}
+                type={"datetime"}
+                options={{ format: "DD/MM/YYYY" }}
+              />
+            )}
+          />
+        </View>
+        <View style={styles.dateColumn}>
+          <TextInput
+            style={styles.input}
+            mode="outlined"
+            label="Data Fim"
+            value={dataFim}
+            onChangeText={setDataFim}
+            keyboardType="numeric"
+            render={(props) => (
+              <TextInputMask
+                {...props}
+                type={"datetime"}
+                options={{ format: "DD/MM/YYYY" }}
+              />
+            )}
+          />
+        </View>
+      </View>
+
       <TextInput
         style={styles.input}
         mode="outlined"
-        label="Descrição (Opcional)"
-        placeholder="Detalhes adicionais"
+        label="Descrição"
         value={descricao}
         onChangeText={setDescricao}
         multiline
         numberOfLines={3}
       />
 
-      <Button style={styles.saveButton} mode="contained" onPress={salvar}>
-        Salvar
-      </Button>
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={tipo}
+          onValueChange={(itemValue) => setTipo(itemValue)}
+          style={styles.picker}
+        >
+          <Picker.Item label="Tipo" value="" enabled={false} />
+          {TIPOS.map((t) => (
+            <Picker.Item key={t.value} label={t.label} value={t.value} />
+          ))}
+        </Picker>
+      </View>
 
-      <Button style={styles.cancelButton} mode="outlined" onPress={() => onFechar(false)}>
-        Cancelar
-      </Button>
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={categoria}
+          onValueChange={(itemValue) => setCategoria(itemValue)}
+          style={styles.picker}
+        >
+          <Picker.Item label="Categoria" value="" enabled={false} />
+          {CATEGORIAS.map((cat) => (
+            <Picker.Item key={cat.value} label={cat.label} value={cat.value} />
+          ))}
+        </Picker>
+      </View>
+
+      <View style={styles.buttonContainer}>
+        <Button
+          style={styles.footerButtonLeft}
+          mode="contained"
+          onPress={salvar}
+        >
+          Salvar
+        </Button>
+        <Button
+          style={styles.footerButtonRight}
+          mode="contained"
+          onPress={() => onFechar(false)}
+        >
+          Cancelar
+        </Button>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
-    backgroundColor: "#FAFAFF",
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: COLORS.surface,
+    padding: 20,
+    borderRadius: 16,
   },
   title: {
-    marginBottom: 20,
-    fontWeight: "bold",
     fontSize: 20,
-    color: "#001858",
+    fontWeight: "bold",
+    color: COLORS.text,
     textAlign: "center",
+    marginBottom: 16,
   },
   input: {
+    backgroundColor: COLORS.primaryLight,
     marginBottom: 12,
-    backgroundColor: "#F3D2C1",
+    borderRadius: 10,
   },
-  saveButton: {
-    marginBottom: 12,
-    backgroundColor: "#F582AE",
-    borderRadius: 0,
+  label: {
+    marginBottom: 4,
+    fontWeight: "bold",
+    color: COLORS.text,
   },
-  cancelButton: {
-    borderColor: "#F582AE",
+  pickerContainer: {
     borderWidth: 1,
-    borderRadius: 0,
+    borderColor: COLORS.primary,
+    borderRadius: 10,
+    backgroundColor: COLORS.primaryLight,
+    marginBottom: 12,
+    overflow: "hidden",
+  },
+  picker: {
+    height: 56,
+    width: "100%",
+    paddingHorizontal: 8,
+    fontSize: 16,
+  },
+  dateRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  dateColumn: {
+    flex: 1,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 16,
+  },
+  footerButtonLeft: {
+    flex: 1,
+    backgroundColor: COLORS.primary,
+    borderRadius: 10,
+  },
+  footerButtonRight: {
+    flex: 1,
+    backgroundColor: COLORS.primaryDark,
+    borderRadius: 10,
   },
 });

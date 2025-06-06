@@ -1,144 +1,214 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, StyleSheet, View, Alert } from "react-native";
-import { Button, Card, IconButton, Text } from "react-native-paper";
-import OrcamentoFormScreen from "./OrcamentoFormScreen";
+import { FlatList, StyleSheet, View } from "react-native";
+import {
+  Button,
+  Card,
+  Text,
+  Modal,
+  Portal,
+  Provider,
+} from "react-native-paper";
+import { COLORS } from "../../theme/theme";
 import OrcamentoService from "../../services/OrcamentoService";
+import OrcamentoForm from "./OrcamentoFormScreen";
 
 export default function OrcamentoListScreen() {
   const [orcamentos, setOrcamentos] = useState([]);
-  const [orcamentoSelecionado, setOrcamentoSelecionado] = useState(null);
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [orcamentoParaEditar, setOrcamentoParaEditar] = useState(null);
 
   useEffect(() => {
-    carregarOrcamentos();
+    buscarOrcamentos();
   }, []);
 
-  async function carregarOrcamentos() {
+  async function buscarOrcamentos() {
     const lista = await OrcamentoService.listar();
     setOrcamentos(lista);
   }
 
-  function abrirFormulario(orcamento = null) {
-    setOrcamentoSelecionado(orcamento);
-    setMostrarFormulario(true);
+  async function removerOrcamento(id) {
+    await OrcamentoService.remover(id);
+    alert("Orçamento excluído com sucesso!");
+    buscarOrcamentos();
   }
 
-  function fecharFormulario(atualizar = false) {
-    setMostrarFormulario(false);
-    setOrcamentoSelecionado(null);
-    if (atualizar) {
-      carregarOrcamentos();
-    }
+  function abrirModal() {
+    setOrcamentoParaEditar(null);
+    setModalVisible(true);
   }
 
-  function confirmarExclusao(orcamento) {
-    Alert.alert(
-      "Confirmação",
-      `Deseja excluir o orçamento "${orcamento.nome}"?`,
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Excluir",
-          style: "destructive",
-          onPress: () => excluir(orcamento.id),
-        },
-      ]
+  function editarOrcamento(orcamento) {
+    setOrcamentoParaEditar(orcamento);
+    setModalVisible(true);
+  }
+
+  function fecharModal(atualizou) {
+    setModalVisible(false);
+    if (atualizou) buscarOrcamentos();
+  }
+
+  function formatarValor(valor) {
+    if (!valor) return "0.00";
+    const numero = parseFloat(
+      valor.replace("R$", "").replace(/\s/g, "").replace(",", ".")
     );
-  }
-
-  async function excluir(id) {
-    await OrcamentoService.excluir(id);
-    carregarOrcamentos();
-  }
-
-  function renderItem({ item }) {
-    return (
-      <Card style={styles.card} key={item.id}>
-        <Card.Title
-          title={item.nome}
-          subtitle={`De ${item.dataInicial} até ${item.dataFinal}`}
-          right={() => (
-            <>
-              <IconButton
-                icon="pencil"
-                onPress={() => abrirFormulario(item)}
-                size={20}
-              />
-              <IconButton
-                icon="delete"
-                onPress={() => confirmarExclusao(item)}
-                size={20}
-              />
-            </>
-          )}
-        />
-        <Card.Content>
-          <Text style={styles.valor}>
-            Valor Planejado: R$ {item.valorPlanejado}
-          </Text>
-          {item.descricao ? (
-            <Text style={styles.descricao}>{item.descricao}</Text>
-          ) : null}
-        </Card.Content>
-      </Card>
-    );
+    return isNaN(numero) ? "0.00" : numero.toFixed(2);
   }
 
   return (
-    <View style={styles.container}>
-      {mostrarFormulario ? (
-        <OrcamentoFormScreen
-          orcamentoAntigo={orcamentoSelecionado}
-          onFechar={fecharFormulario}
-        />
-      ) : (
-        <>
-          <Button
-            mode="contained"
-            onPress={() => abrirFormulario()}
-            style={styles.botaoNovo}
-          >
-            Novo Orçamento
-          </Button>
+    <Provider>
+      <View style={styles.container}>
+        <Button
+          style={styles.saveButton}
+          icon="plus"
+          mode="contained"
+          onPress={abrirModal}
+        >
+          Cadastrar orçamento
+        </Button>
+        <FlatList
+          data={orcamentos}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <Card style={styles.card}>
+              <Card.Content>
+                <View style={styles.cardContent}>
+                  <View style={styles.infoSection}>
+                    <Text style={styles.labelStrong}>Nome: {item.nome}</Text>
+                    <Text style={styles.labelValue}>
+                      Valor limite: R$ {formatarValor(item.valorLimite)}
+                    </Text>
+                    <Text style={styles.labelMuted}>
+                      Categoria: {item.categoria}
+                    </Text>
+                    <Text style={styles.labelMuted}>
+                      Período: {item.dataInicio} até {item.dataFim}
+                    </Text>
+                    <Text style={styles.labelMuted}>Tipo: {item.tipo}</Text>
+                    <Text style={styles.labelMuted}>
+                      Descrição: {item.descricao}
+                    </Text>
+                  </View>
+                  <View style={styles.iconSection}>
+                    <Text style={styles.emoji}>📊</Text>
+                  </View>
+                </View>
+              </Card.Content>
 
-          <FlatList
-            data={orcamentos}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id.toString()}
-            style={styles.lista}
-          />
-        </>
-      )}
-    </View>
+              <View style={styles.cardFooter}>
+                <Button
+                  icon="pencil"
+                  mode="contained"
+                  onPress={() => editarOrcamento(item)}
+                  style={styles.footerButtonLeft}
+                  labelStyle={{ color: "#fff" }}
+                >
+                  Editar
+                </Button>
+                <Button
+                  icon="delete"
+                  mode="contained"
+                  onPress={() => removerOrcamento(item.id)}
+                  style={styles.footerButtonRight}
+                  labelStyle={{ color: "#fff" }}
+                >
+                  Deletar
+                </Button>
+              </View>
+            </Card>
+          )}
+        />
+
+        <Portal>
+          <Modal
+            visible={modalVisible}
+            onDismiss={() => fecharModal(false)}
+            contentContainerStyle={styles.modalContainer}
+          >
+            <OrcamentoForm
+              orcamentoAntigo={orcamentoParaEditar || {}}
+              onFechar={fecharModal}
+            />
+          </Modal>
+        </Portal>
+      </View>
+    </Provider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: COLORS.background,
     padding: 16,
-    backgroundColor: "#FAFAFF",
   },
-  botaoNovo: {
+  saveButton: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 12,
     marginBottom: 16,
-    backgroundColor: "#F582AE",
-    borderRadius: 0,
-  },
-  lista: {
-    flex: 1,
+    paddingVertical: 6,
   },
   card: {
-    marginBottom: 12,
-    backgroundColor: "#F3D2C1",
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
+    marginBottom: 16,
+    padding: 16,
+    shadowColor: COLORS.primary,
+    elevation: 3,
   },
-  valor: {
+  cardContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  infoSection: {
+    flex: 1,
+  },
+  iconSection: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingLeft: 8,
+  },
+  emoji: {
+    fontSize: 36,
+  },
+  labelStrong: {
+    fontSize: 16,
     fontWeight: "bold",
-    marginTop: 4,
+    color: COLORS.text,
   },
-  descricao: {
-    fontStyle: "italic",
-    marginTop: 6,
+  labelValue: {
+    fontSize: 15,
+    color: COLORS.primary,
+    fontWeight: "600",
+    marginTop: 2,
+  },
+  labelMuted: {
+    fontSize: 14,
+    color: COLORS.muted,
+    marginTop: 2,
+  },
+  cardFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 12,
+  },
+  footerButtonLeft: {
+    flex: 1,
+    backgroundColor: COLORS.primary,
+    marginRight: 6,
+    borderRadius: 8,
+  },
+  footerButtonRight: {
+    flex: 1,
+    backgroundColor: COLORS.primaryDark,
+    marginLeft: 6,
+    borderRadius: 8,
+  },
+  modalContainer: {
+    backgroundColor: COLORS.surface,
+    padding: 20,
+    marginHorizontal: 20,
+    borderRadius: 16,
   },
 });
-
-// VERIFICAR ERROS QUE ESTÁ DANDO
